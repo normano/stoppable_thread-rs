@@ -38,22 +38,34 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Weak};
 
 
+/// An simplified std::sync::atomic::AtomicBool
+///
+/// Use a more intuitive interface and does not allow the Ordering to be
+/// specified (it's always `Ordering::Relaxed`)
 pub struct SimpleAtomicBool(AtomicBool);
 
 impl SimpleAtomicBool {
+
+    /// Create a new instance
     pub fn new(v: bool) -> SimpleAtomicBool {
         SimpleAtomicBool(AtomicBool::new(v))
     }
 
+    /// Return the current value
     pub fn get(&self) -> bool {
         self.0.load(Ordering::Relaxed)
     }
 
+    /// Set a new value
     pub fn set(&self, v: bool) {
         self.0.store(v, Ordering::Relaxed)
     }
 }
 
+/// A handle for a stoppable thread
+///
+/// The interface is similar to `std::thread::JoinHandle<T>`, supporting
+/// `thread` and `join` with the same signature.
 pub struct StoppableHandle<T> {
     join_handle: JoinHandle<T>,
     stopped: Weak<SimpleAtomicBool>,
@@ -68,6 +80,12 @@ impl<T> StoppableHandle<T> {
         self.join_handle.join()
     }
 
+    /// Stop the thread
+    ///
+    /// This will signal the thread to stop by setting the shared atomic
+    /// `stopped` variable to `True`. The function will return immediately
+    /// after, to wait for the thread to stop, use the returned `JoinHandle<T>`
+    /// and `wait()`.
     pub fn stop(self) -> JoinHandle<T> {
         if let Some(v) = self.stopped.upgrade() {
             v.set(true)
@@ -77,6 +95,10 @@ impl<T> StoppableHandle<T> {
     }
 }
 
+/// Spawn a stoppable thread
+///
+/// Works similar to like `std::thread::spawn`, except that a
+/// `&SimpleAtomicBool` is passed into `f`.
 pub fn spawn<F, T>(f: F) -> StoppableHandle<T> where
     F: FnOnce(&SimpleAtomicBool) -> T,
     F: Send + 'static, T: Send + 'static {
