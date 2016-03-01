@@ -1,3 +1,37 @@
+//! A stoppable, thin wrapper around std::Thread.
+//!
+//! Uses `std::sync::atomic::AtomicBool` and `std::thread` to create stoppable
+//! threads.
+//!
+//! The interface is very similar to that of `std::thread::Thread` (or rather
+//! `std::thread::JoinHandle`) except that every closure passed in must accept
+//! a `stopped` parameter, allowing to check whether or not a stop was
+//! requested.
+//!
+//! Since all stops must have gracefully, i.e. by requesting the child thread
+//! to stop, partial values can be returned if needed.
+//!
+//! Example:
+//!
+//! ```
+//! use stoppable_thread;
+//!
+//! let handle = stoppable_thread::spawn(|stopped| {
+//!     let mut count: u64 = 0;
+//!
+//!     while !stopped.get() {
+//!         count += 1
+//!     }
+//!
+//!     count
+//! });
+//!
+//! // work in main thread
+//!
+//! // stop the thread. we also want to collect partial results
+//! let child_count = handle.stop().join().unwrap();
+//! ```
+
 use std::thread;
 use std::thread::{Thread, JoinHandle, Result};
 use std::sync::atomic::{AtomicBool, Ordering};
