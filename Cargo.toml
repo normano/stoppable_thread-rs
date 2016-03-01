@@ -5,6 +5,6 @@ authors = ["Marc Brinkmann <git@marcbrinkmann.de>"]
 description = "A wrapper for thread that allows it to be easily stopped cooperatively"
 license = "MIT"
 repository = "https://github.com/mbr/stoppable_thread-rs"
-documentation = "https://mbr.github.io/stoppable_thread-rs"
+documentation = "https://mbr.github.io/stoppable_thread-rs/stoppable_thread"
 
 [dependencies]
