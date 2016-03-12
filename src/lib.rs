@@ -114,6 +114,9 @@ pub fn spawn<F, T>(f: F) -> StoppableHandle<T> where
 
 /// Guard a stoppable thread
 ///
+/// When `Stopping` is dropped (usually by going out of scope), the contained
+/// thread will be stopped.
+///
 /// Note: This does not guarantee that `stop()` will be called (the original
 /// scoped thread was removed from stdlib for this reason).
 pub struct Stopping<T> {
@@ -138,9 +141,10 @@ impl<T> Drop for Stopping<T> {
     }
 }
 
-/// Join a stoppable thread
+/// Guard and join stoppable thread
 ///
-/// Like `Stopping`, but join instead. See notes about guarantees on `Stopping`.
+/// Like `Stopping`, but waits for the thread to finish. See notes about
+/// guarantees on `Stopping`.
 pub struct Joining<T> {
     handle: Option<StoppableHandle<T>>
 }
