@@ -203,8 +203,10 @@ fn test_guard() {
 
     fn count_upwards(stopped: &SimpleAtomicBool,
                      var: sync::Arc<sync::Mutex<u64>>) {
+        // increases a mutex-protected counter every 10 ms, exits once the
+        // value is > 500
         while !stopped.get() {
-            let guard = var.lock().unwrap();
+            let mut guard = var.lock().unwrap();
 
             *guard += 1;
 
@@ -225,7 +227,14 @@ fn test_guard() {
         let jcount = joining_count.clone();
         let joining = Joining::new(spawn(move |stopped|
                                     count_upwards(stopped, jcount)));
+        sleep(Duration::from_millis(1))
     }
 
+    // threads should not have counted far
     sleep(Duration::from_millis(100));
+
+    let sc = stopping_count.lock().unwrap();
+    assert!(*sc > 1 && *sc < 5);
+    let jc = joining_count.lock().unwrap();
+    assert!(*sc > 1 && *jc < 5);
 }
