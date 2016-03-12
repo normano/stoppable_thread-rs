@@ -32,8 +32,9 @@
 //! let child_count = handle.stop().join().unwrap();
 //! ```
 
-use std::thread;
-use std::thread::{Thread, JoinHandle, Result};
+use std::ops::Drop;
+use std::mem;
+use std::thread::{self, Thread, JoinHandle, Result};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Weak};
 
@@ -111,6 +112,58 @@ pub fn spawn<F, T>(f: F) -> StoppableHandle<T> where
     }
 }
 
+/// Guard a stoppable thread
+///
+/// Note: This does not guarantee that `stop()` will be called (the original
+/// scoped thread was removed from stdlib for this reason).
+pub struct Stopping<T> {
+    handle: Option<StoppableHandle<T>>
+}
+
+impl<T> Stopping<T> {
+    pub fn new(handle: StoppableHandle<T>) -> Stopping<T> {
+        Stopping{
+            handle: Some(handle)
+        }
+    }
+}
+
+impl<T> Drop for Stopping<T> {
+    fn drop(&mut self) {
+        let handle = mem::replace(&mut self.handle, None);
+
+        if let Some(h) = handle {
+            h.stop();
+        };
+    }
+}
+
+/// Join a stoppable thread
+///
+/// Like `Stopping`, but join instead. See notes about guarantees on `Stopping`.
+pub struct Joining<T> {
+    handle: Option<StoppableHandle<T>>
+}
+
+impl<T> Joining<T> {
+    pub fn new(handle: StoppableHandle<T>) -> Joining<T> {
+        Joining{
+            handle: Some(handle)
+        }
+    }
+}
+
+impl<T> Drop for Joining<T> {
+    fn drop(&mut self) {
+        let handle = mem::replace(&mut self.handle, None);
+
+        if let Some(h) = handle {
+            h.stop().join().ok();
+        };
+    }
+}
+
+
 #[cfg(test)]
 #[test]
 fn test_stoppable_thead() {
@@ -132,4 +185,43 @@ fn test_stoppable_thead() {
 
     // assume some work has been done
     assert!(result > 1);
+}
+
+#[cfg(test)]
+#[test]
+fn test_guard() {
+    use std::thread::sleep;
+    use std::time::Duration;
+    use std::sync;
+
+    let stopping_count = sync::Arc::new(sync::Mutex::new(0));
+    let joining_count = sync::Arc::new(sync::Mutex::new(0));
+
+    fn count_upwards(stopped: &SimpleAtomicBool,
+                     var: sync::Arc<sync::Mutex<u64>>) {
+        while !stopped.get() {
+            let guard = var.lock().unwrap();
+
+            *guard += 1;
+
+            if *guard > 500 {
+                break
+            }
+
+            sleep(Duration::from_millis(10))
+        }
+    }
+
+    {
+        // seperate scope to cause early Drops
+        let scount = stopping_count.clone();
+        let stopping = Stopping::new(spawn(move |stopped|
+                                     count_upwards(stopped, scount)));
+
+        let jcount = joining_count.clone();
+        let joining = Joining::new(spawn(move |stopped|
+                                    count_upwards(stopped, jcount)));
+    }
+
+    sleep(Duration::from_millis(100));
 }
