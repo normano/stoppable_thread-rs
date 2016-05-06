@@ -1,6 +1,6 @@
 [package]
 name = "stoppable_thread"
-version = "0.1.3"
+version = "0.2.0"
 authors = ["Marc Brinkmann <git@marcbrinkmann.de>"]
 description = "A wrapper for thread that allows it to be easily stopped cooperatively"
 license = "MIT"
