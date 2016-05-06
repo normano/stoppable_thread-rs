@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["spawn","Spawn a stoppable thread"]],"struct":[["SimpleAtomicBool","An simplified std::sync::atomic::AtomicBool"],["StoppableHandle","A handle for a stoppable thread"]]});
+initSidebarItems({"fn":[["spawn","Spawn a stoppable thread"]],"struct":[["Joining","Guard and join stoppable thread"],["SimpleAtomicBool","An simplified std::sync::atomic::AtomicBool"],["StoppableHandle","A handle for a stoppable thread"],["Stopping","Guard a stoppable thread"]]});

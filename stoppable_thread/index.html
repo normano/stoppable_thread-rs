@@ -46,7 +46,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-0' class='srclink' href='../src/stoppable_thread/src/lib.rs.html#1-136' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-0' class='srclink' href='../src/stoppable_thread/src/lib.rs.html#1-241' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>A stoppable, thin wrapper around std::Thread.</p>
 
 <p>Uses <code>std::sync::atomic::AtomicBool</code> and <code>std::thread</code> to create stoppable
@@ -82,6 +82,14 @@ to stop, partial values can be returned if needed.</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                     <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Joining.html'
+                               title='stoppable_thread::Joining'>Joining</a></td>
+                        <td class='docblock short'>
+                             <p>Guard and join stoppable thread</p>
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
                         <td><a class='struct' href='struct.SimpleAtomicBool.html'
                                title='stoppable_thread::SimpleAtomicBool'>SimpleAtomicBool</a></td>
                         <td class='docblock short'>
@@ -94,6 +102,14 @@ to stop, partial values can be returned if needed.</p>
                                title='stoppable_thread::StoppableHandle'>StoppableHandle</a></td>
                         <td class='docblock short'>
                              <p>A handle for a stoppable thread</p>
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Stopping.html'
+                               title='stoppable_thread::Stopping'>Stopping</a></td>
+                        <td class='docblock short'>
+                             <p>Guard a stoppable thread</p>
                         </td>
                     </tr>
                 </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
