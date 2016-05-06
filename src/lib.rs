@@ -46,7 +46,6 @@ use std::sync::{Arc, Weak};
 pub struct SimpleAtomicBool(AtomicBool);
 
 impl SimpleAtomicBool {
-
     /// Create a new instance
     pub fn new(v: bool) -> SimpleAtomicBool {
         SimpleAtomicBool(AtomicBool::new(v))
@@ -61,11 +60,6 @@ impl SimpleAtomicBool {
     pub fn set(&self, v: bool) {
         self.0.store(v, Ordering::Relaxed)
     }
-}
-
-#[derive(Debug, PartialEq)]
-pub enum ThreadState {
-    Running, Stopping, Stopped
 }
 
 /// A handle for a stoppable thread
@@ -98,19 +92,6 @@ impl<T> StoppableHandle<T> {
         }
 
         self.join_handle
-    }
-
-    pub fn state(&self) -> ThreadState {
-        match self.stopped.upgrade() {
-            Some(v) => {
-                if v.get() {
-                    ThreadState::Stopping
-                } else {
-                    ThreadState::Running
-                }
-            }
-            None => ThreadState::Stopped,
-        }
     }
 }
 
@@ -201,19 +182,14 @@ fn test_stoppable_thead() {
         count
     });
 
-    assert_eq!(work_work.state(), ThreadState::Running);
-
     // wait a few cycles
     sleep(Duration::from_millis(100));
 
     let join_handle = work_work.stop();
-    assert_eq!(work_work.state(), ThreadState::Stopping);
-
-    //let result = join_handle.join().unwrap();
-    assert_eq!(work_work.state(), ThreadState::Stopped);
+    let result = join_handle.join().unwrap();
 
     // assume some work has been done
-    //assert!(result > 1);
+    assert!(result > 1);
 }
 
 #[cfg(test)]
