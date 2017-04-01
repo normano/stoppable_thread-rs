@@ -8,7 +8,7 @@
 //! a `stopped` parameter, allowing to check whether or not a stop was
 //! requested.
 //!
-//! Since all stops must have gracefully, i.e. by requesting the child thread
+//! Since all stops must happen gracefully, i.e. by requesting the child thread
 //! to stop, partial values can be returned if needed.
 //!
 //! Example:
