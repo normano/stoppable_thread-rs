@@ -111,6 +111,20 @@ pub fn spawn<F, T>(f: F) -> StoppableHandle<T> where
     }
 }
 
+pub fn spawn_with_builder<F, T>(thread_builder: thread::Builder, f: F) -> std::io::Result<StoppableHandle<T>> where
+  F: FnOnce(&SimpleAtomicBool) -> T,
+  F: Send + 'static, T: Send + 'static {
+    let stopped = Arc::new(SimpleAtomicBool::new(false));
+    let stopped_w = Arc::downgrade(&stopped);
+
+    let handle = thread_builder.spawn(move || f(&*stopped))?;
+
+    return Ok(StoppableHandle{
+        join_handle: handle,
+        stopped: stopped_w,
+    });
+}
+
 /// Guard a stoppable thread
 ///
 /// When `Stopping` is dropped (usually by going out of scope), the contained
@@ -238,4 +252,36 @@ fn test_guard() {
     assert!(*sc > 1 && *sc < 5);
     let jc = joining_count.lock().unwrap();
     assert!(*sc > 1 && *jc < 5);
+}
+
+
+#[cfg(test)]
+#[test]
+fn test_stoppable_thead_builder_with_name() {
+    use std::thread::sleep;
+    use std::time::Duration;
+
+    let thread_name = "test_builder";
+    let thread_builder = thread::Builder::new().name(String::from(thread_name));
+
+    let spawn_result = spawn_with_builder(thread_builder, |stopped| {
+        let mut count: u64 = 0;
+        while !stopped.get() {
+            count += 1;
+            sleep(Duration::from_millis(10));
+        }
+        count
+    });
+
+    // wait a few cycles
+    sleep(Duration::from_millis(100));
+
+    let stoppable_handle = spawn_result.unwrap();
+    assert!(stoppable_handle.thread().name().unwrap() == thread_name);
+
+    let join_handle = stoppable_handle.stop();
+    let result = join_handle.join().unwrap();
+
+    // assume some work has been done
+    assert!(result > 1);
 }
