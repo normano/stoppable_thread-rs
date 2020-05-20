@@ -38,11 +38,7 @@ use std::thread::{self, Thread, JoinHandle, Result};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Weak};
 
-
-/// An simplified std::sync::atomic::AtomicBool
-///
-/// Use a more intuitive interface and does not allow the Ordering to be
-/// specified (it's always `Ordering::Relaxed`)
+/// A simplified std::sync::atomic::AtomicBool
 pub struct SimpleAtomicBool(AtomicBool);
 
 impl SimpleAtomicBool {
@@ -53,12 +49,12 @@ impl SimpleAtomicBool {
 
     /// Return the current value
     pub fn get(&self) -> bool {
-        self.0.load(Ordering::Relaxed)
+        self.0.load(Ordering::SeqCst)
     }
 
     /// Set a new value
     pub fn set(&self, v: bool) {
-        self.0.store(v, Ordering::Relaxed)
+        self.0.store(v, Ordering::SeqCst)
     }
 }
 
