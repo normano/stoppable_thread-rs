@@ -14,9 +14,9 @@
 //! Example:
 //!
 //! ```
-//! use stoppable_thread;
+//! use killable_thread;
 //!
-//! let handle = stoppable_thread::spawn(|stopped| {
+//! let handle = killable_thread::spawn(|stopped| {
 //!     let mut count: u64 = 0;
 //!
 //!     while !stopped.get() {

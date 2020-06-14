@@ -1,10 +1,10 @@
 [package]
-name = "stoppable_thread"
+name = "killable_thread"
 version = "0.2.2"
-authors = ["Marc Brinkmann <git@marcbrinkmann.de>"]
+authors = ["N Ovenseri <novenseri@gmail.com>"]
 description = "A wrapper for thread that allows it to be easily stopped cooperatively"
 license = "MIT"
-repository = "https://github.com/mbr/stoppable_thread-rs"
-documentation = "https://mbr.github.io/stoppable_thread-rs/stoppable_thread"
+repository = "https://github.com/normano/stoppable_thread-rs"
+documentation = ""
 
 [dependencies]
