@@ -5,6 +5,6 @@ authors = ["N Ovenseri <novenseri@gmail.com>"]
 description = "A wrapper for thread that allows it to be easily stopped cooperatively"
 license = "MIT"
 repository = "https://github.com/normano/stoppable_thread-rs"
-documentation = ""
+#documentation = ""
 
 [dependencies]
